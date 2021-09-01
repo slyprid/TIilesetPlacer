@@ -1,8 +1,10 @@
-﻿using System.Windows;
+﻿using TilesetPlacer.Mvvm;
+using TilesetPlacer.ViewModels;
 
 namespace TilesetPlacer.Views
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow 
+        : WindowView<MainViewModel>
     {
         public MainWindow()
         {

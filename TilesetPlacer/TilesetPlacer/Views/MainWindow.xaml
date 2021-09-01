@@ -1,12 +1,132 @@
-﻿<Window x:Class="TilesetPlacer.Views.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TilesetPlacer"
-        mc:Ignorable="d"
-        Title="TilesetPlacer" Width="1024" Height="768" WindowStartupLocation="CenterScreen">
-    <Grid>
-        
-    </Grid>
-</Window>
+﻿<mvvm:WindowView x:TypeArguments="viewModels:MainViewModel" x:Class="TilesetPlacer.Views.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:local="clr-namespace:TilesetPlacer"
+                 xmlns:mvvm="clr-namespace:TilesetPlacer.Mvvm"
+                 xmlns:viewModels="clr-namespace:TilesetPlacer.ViewModels"
+                 xmlns:controls="clr-namespace:TilesetPlacer.Controls"
+                 mc:Ignorable="d"
+                 Style="{DynamicResource CustomWindowStyle}"
+                 Title="TilesetPlacer" Width="1280" Height="720" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+    <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top">
+            <!-- Project -->
+            <ToolBar>
+                <Button>
+                    <Image Source="../Content/NewProject.png" Width="24" Height="24"/>
+                </Button>
+                <Button>
+                    <Image Source="../Content/OpenProject.png" Width="24" Height="24"/>
+                </Button>
+                <Button>
+                    <Image Source="../Content/SaveProject.png" Width="24" Height="24"/>
+                </Button>
+            </ToolBar>
+            <!-- Functions -->
+            <ToolBar>
+                <Button>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
+                        <TextBlock Margin="3,0,0,0">Export</TextBlock>
+                    </StackPanel>
+                </Button>
+            </ToolBar>
+            <!-- Tileset -->
+            <ToolBar>
+                <Button>
+                    <Image Source="../Content/AddTileset.png" Width="24" Height="24"/>
+                </Button>
+                <Button>
+                    <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
+                </Button>
+            </ToolBar>
+            <!-- Properties -->
+            <ToolBar>
+                <Button>
+                    <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
+                </Button>
+                <Button>
+                    <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
+                </Button>
+            </ToolBar>
+            <!-- Mode -->
+            <ToolBar>
+                <RadioButton GroupName="Mode" IsChecked="True">
+                    <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
+                </RadioButton>
+                <RadioButton GroupName="Mode">
+                    <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
+                </RadioButton>
+            </ToolBar>
+        </ToolBarTray>
+
+        <StatusBar DockPanel.Dock="Bottom" Padding="8" Background="#363636">
+            <TextBlock Name="txtMapLocation" Text="Map: [0,0]" Margin="8,0,8,0"/>
+            <TextBlock Name="txtMouseLocation" Text="Mouse: [0,0]"/>
+        </StatusBar>
+
+        <!-- Tileset Explorer -->
+        <Grid DockPanel.Dock="Left" Width="256">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="1">
+                <TextBlock Text="Tilesets" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
+            </Border>
+            <ListBox Grid.Row="1" Foreground="White"  Background="#252526">
+                <ListBoxItem>Tileset 1</ListBoxItem>
+                <ListBoxItem>Tileset 2</ListBoxItem>
+                <ListBoxItem>Tileset 3</ListBoxItem>
+                <ListBoxItem>Tileset 4</ListBoxItem>
+                <ListBoxItem>Tileset 5</ListBoxItem>
+            </ListBox>
+        </Grid>
+
+        <!-- Tile Property Explorer -->
+        <Grid DockPanel.Dock="Right" Width="256">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="1">
+                <TextBlock Text="Tile Properties" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"/>
+            </Border>
+            <controls:TilePropertyPanel Grid.Row="1">
+
+            </controls:TilePropertyPanel>
+        </Grid>
+
+        <!-- Tileset Content -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="1,1,0,1">
+                    <TextBlock Text="Selected Tileset" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
+                </Border>
+                <Canvas Grid.Row="1" Background="#1E1E1E"></Canvas>
+            </Grid>
+            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch"/>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="0,1,1,1">
+                    <TextBlock Text="Output Tileset" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
+                </Border>
+                <Canvas Grid.Row="1" Background="#1E1E1E"></Canvas>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</mvvm:WindowView>
