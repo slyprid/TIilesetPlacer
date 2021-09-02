@@ -6,6 +6,7 @@ using MonoGame.Extended;
 using MonoGame.Framework.WpfInterop;
 using MonoGame.Framework.WpfInterop.Input;
 using TilesetPlacer.Extensions;
+using TilesetPlacer.Models;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace TilesetPlacer.Scenes
@@ -41,6 +42,20 @@ namespace TilesetPlacer.Scenes
             set => SetValue(TileHeightProperty, value);
         }
 
+        public static readonly DependencyProperty DeviceProperty = DependencyProperty.Register("Device", typeof(GraphicsDevice), typeof(OutputTilesetScene), new PropertyMetadata(default(GraphicsDevice)));
+        public GraphicsDevice Device
+        {
+            get => (GraphicsDevice)GetValue(DeviceProperty);
+            set => SetValue(DeviceProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedTilesetProperty = DependencyProperty.Register("SelectedTileset", typeof(Tileset), typeof(OutputTilesetScene), new PropertyMetadata(default(Tileset)));
+        public Tileset SelectedTileset
+        {
+            get => (Tileset) GetValue(SelectedTilesetProperty);
+            set => SetValue(SelectedTilesetProperty, value);
+        }
+
         #endregion
 
         protected override void Initialize()
@@ -60,6 +75,7 @@ namespace TilesetPlacer.Scenes
 
             // content loading now possible
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            Device = GraphicsDevice;
         }
 
         protected override void Update(GameTime time)
@@ -72,6 +88,8 @@ namespace TilesetPlacer.Scenes
         protected override void Draw(GameTime time)
         {
             GraphicsDevice.Clear(new Color(Background.Color.R, Background.Color.G, Background.Color.B));
+
+            if (TileWidth <= 0 || TileHeight <= 0) return;
 
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 

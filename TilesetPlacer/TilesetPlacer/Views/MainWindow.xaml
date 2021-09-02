@@ -15,19 +15,19 @@
         <ToolBarTray DockPanel.Dock="Top">
             <!-- Project -->
             <ToolBar>
-                <Button ToolTip="Create a new project">
+                <Button ToolTip="Create a new project" Command="{Binding NewProjectCommand}">
                     <Image Source="../Content/NewProject.png" Width="24" Height="24"/>
                 </Button>
-                <Button ToolTip="Open an existing project">
+                <Button ToolTip="Open an existing project" Command="{Binding OpenProjectCommand}">
                     <Image Source="../Content/OpenProject.png" Width="24" Height="24"/>
                 </Button>
-                <Button ToolTip="Save the current project">
+                <Button ToolTip="Save the current project" Command="{Binding SaveProjectCommand}">
                     <Image Source="../Content/SaveProject.png" Width="24" Height="24"/>
                 </Button>
             </ToolBar>
             <!-- Functions -->
             <ToolBar>
-                <Button ToolTip="Export output tileset">
+                <Button ToolTip="Export output tileset" Command="{Binding ExportCommand}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                         <TextBlock Margin="3,0,0,0">Export</TextBlock>
@@ -36,30 +36,36 @@
             </ToolBar>
             <!-- Tileset -->
             <ToolBar>
-                <Button ToolTip="Add a tileset to select tiles from">
+                <Button ToolTip="Add a tileset to select tiles from" Command="{Binding AddTilesetCommand}">
                     <Image Source="../Content/AddTileset.png" Width="24" Height="24"/>
                 </Button>
-                <Button ToolTip="Remove a tileset">
+                <Button ToolTip="Remove a tileset" Command="{Binding RemoveTilesetCommand}">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </Button>
             </ToolBar>
             <!-- Properties -->
             <ToolBar>
-                <Button ToolTip="Add property to output tile">
+                <Button ToolTip="Add property to output tile" Command="{Binding AddPropertyCommand}">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </Button>
-                <Button ToolTip="Remove property from output tile">
+                <Button ToolTip="Remove property from output tile" Command="{Binding RemovePropertyCommand}">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </Button>
             </ToolBar>
             <!-- Mode -->
             <ToolBar>
-                <RadioButton GroupName="Mode" IsChecked="True" ToolTip="Set Pick/Place mode">
+                <RadioButton GroupName="Mode" IsChecked="True" ToolTip="Set Pick/Place mode" Command="{Binding SetPickPlaceModeCommand}">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </RadioButton>
-                <RadioButton GroupName="Mode" ToolTip="Set Property Mode">
+                <RadioButton GroupName="Mode" ToolTip="Set Property Mode" Command="{Binding SetPropertyModeCommand}">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </RadioButton>
+            </ToolBar>
+            <!-- Misc -->
+            <ToolBar>
+                <Button ToolTip="Configure TilesetPlacer" Command="{Binding ConfigureCommand}">
+                    <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
+                </Button>
             </ToolBar>
         </ToolBarTray>
 
@@ -77,12 +83,12 @@
             <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="1">
                 <TextBlock Text="Tilesets" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
             </Border>
-            <ListBox Grid.Row="1" Foreground="White"  Background="#252526">
-                <ListBoxItem>Tileset 1</ListBoxItem>
-                <ListBoxItem>Tileset 2</ListBoxItem>
-                <ListBoxItem>Tileset 3</ListBoxItem>
-                <ListBoxItem>Tileset 4</ListBoxItem>
-                <ListBoxItem>Tileset 5</ListBoxItem>
+            <ListBox Grid.Row="1" Foreground="White"  Background="#252526" ItemsSource="{Binding Tilesets}" SelectedItem="{Binding SelectedTileset}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
 
@@ -111,22 +117,46 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="32"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="32"/>
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="1,1,0,1">
                     <TextBlock Text="Selected Tileset" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
                 </Border>
-                <scenes:SelectedTilesetScene Grid.Row="1" Background="#1E1E1E" TileWidth="32" TileHeight="32"/>
+                <scenes:SelectedTilesetScene Grid.Row="1" Background="#1E1E1E" 
+                                             TileWidth="{Binding Project.TileWidth}" TileHeight="{Binding Project.TileHeight}" 
+                                             SelectedTileset="{Binding SelectedTileset}"
+                                             Device="{Binding SelectedGraphicsDevice, Mode=TwoWay}"/>
+                <ToolBarTray Grid.Row="2">
+                    <ToolBar Height="32">
+                        <TextBlock Text="Tile Width:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0,0,8,0"/>
+                        <TextBox Text="{Binding Project.TileWidth, Mode=TwoWay}" Width="32" Height="18"/>
+                        <TextBlock Text="Height:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,0"/>
+                        <TextBox Text="{Binding Project.TileHeight, Mode=TwoWay}" Width="32" Height="18"/>
+                    </ToolBar>
+                </ToolBarTray>
             </Grid>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch"/>
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="32"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="32"/>
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="0,1,1,1">
                     <TextBlock Text="Output Tileset" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
                 </Border>
-                <scenes:OutputTilesetScene Grid.Row="1" Background="#1E1E1E" TileWidth="32" TileHeight="32"/>
+                <scenes:OutputTilesetScene Grid.Row="1" Background="#1E1E1E" 
+                                           TileWidth="{Binding Project.OutputTileWidth}" TileHeight="{Binding Project.OutputTileHeight}" 
+                                           SelectedTileset="{Binding SelectedTileset}"
+                                           Device="{Binding OutputGraphicsDevice, Mode=TwoWay}"/>
+                <ToolBarTray Grid.Row="2">
+                    <ToolBar Height="32">
+                        <TextBlock Text="Tile Width:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0,0,8,0"/>
+                        <TextBox Text="{Binding Project.OutputTileWidth, Mode=TwoWay}" Width="32" Height="18"/>
+                        <TextBlock Text="Height:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,0"/>
+                        <TextBox Text="{Binding Project.OutputTileHeight, Mode=TwoWay}" Width="32" Height="18"/>
+                    </ToolBar>
+                </ToolBarTray>
             </Grid>
         </Grid>
     </DockPanel>
