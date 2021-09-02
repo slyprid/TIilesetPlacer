@@ -7,6 +7,7 @@
                  xmlns:mvvm="clr-namespace:TilesetPlacer.Mvvm"
                  xmlns:viewModels="clr-namespace:TilesetPlacer.ViewModels"
                  xmlns:controls="clr-namespace:TilesetPlacer.Controls"
+                 xmlns:scenes="clr-namespace:TilesetPlacer.Scenes"
                  mc:Ignorable="d"
                  Style="{DynamicResource CustomWindowStyle}"
                  Title="TilesetPlacer" Width="1280" Height="720" WindowStartupLocation="CenterScreen" WindowState="Maximized">
@@ -14,19 +15,19 @@
         <ToolBarTray DockPanel.Dock="Top">
             <!-- Project -->
             <ToolBar>
-                <Button>
+                <Button ToolTip="Create a new project">
                     <Image Source="../Content/NewProject.png" Width="24" Height="24"/>
                 </Button>
-                <Button>
+                <Button ToolTip="Open an existing project">
                     <Image Source="../Content/OpenProject.png" Width="24" Height="24"/>
                 </Button>
-                <Button>
+                <Button ToolTip="Save the current project">
                     <Image Source="../Content/SaveProject.png" Width="24" Height="24"/>
                 </Button>
             </ToolBar>
             <!-- Functions -->
             <ToolBar>
-                <Button>
+                <Button ToolTip="Export output tileset">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                         <TextBlock Margin="3,0,0,0">Export</TextBlock>
@@ -35,28 +36,28 @@
             </ToolBar>
             <!-- Tileset -->
             <ToolBar>
-                <Button>
+                <Button ToolTip="Add a tileset to select tiles from">
                     <Image Source="../Content/AddTileset.png" Width="24" Height="24"/>
                 </Button>
-                <Button>
+                <Button ToolTip="Remove a tileset">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </Button>
             </ToolBar>
             <!-- Properties -->
             <ToolBar>
-                <Button>
+                <Button ToolTip="Add property to output tile">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </Button>
-                <Button>
+                <Button ToolTip="Remove property from output tile">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </Button>
             </ToolBar>
             <!-- Mode -->
             <ToolBar>
-                <RadioButton GroupName="Mode" IsChecked="True">
+                <RadioButton GroupName="Mode" IsChecked="True" ToolTip="Set Pick/Place mode">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </RadioButton>
-                <RadioButton GroupName="Mode">
+                <RadioButton GroupName="Mode" ToolTip="Set Property Mode">
                     <Image Source="../Content/Unknown.png" Width="24" Height="24"/>
                 </RadioButton>
             </ToolBar>
@@ -114,7 +115,7 @@
                 <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="1,1,0,1">
                     <TextBlock Text="Selected Tileset" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
                 </Border>
-                <Canvas Grid.Row="1" Background="#1E1E1E"></Canvas>
+                <scenes:SelectedTilesetScene Grid.Row="1" Background="#1E1E1E" TileWidth="32" TileHeight="32"/>
             </Grid>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch"/>
             <Grid Grid.Column="2">
@@ -125,7 +126,7 @@
                 <Border Grid.Row="0" BorderBrush="#3C3C3C" BorderThickness="0,1,1,1">
                     <TextBlock Text="Output Tileset" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
                 </Border>
-                <Canvas Grid.Row="1" Background="#1E1E1E"></Canvas>
+                <scenes:OutputTilesetScene Grid.Row="1" Background="#1E1E1E" TileWidth="32" TileHeight="32"/>
             </Grid>
         </Grid>
     </DockPanel>
