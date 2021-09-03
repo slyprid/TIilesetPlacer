@@ -237,6 +237,24 @@ namespace TilesetPlacer.ViewModels
 
         private void RemoveTileset()
         {
+            if (SelectedTileset == null)
+            {
+                MessageBox.Show("No tileset selected", "TilesetPlacer");
+                return;
+            }
+
+            var id = SelectedTileset.Id;
+            Tilesets.Remove(SelectedTileset);
+            SelectedTileset = null;
+
+            foreach (var tile in Tiles.ToList())
+            {
+                if (tile.TilesetId == id)
+                {
+                    Tiles.Remove(tile);
+                }
+            }
+
             IsDirty = true;
         }
 
