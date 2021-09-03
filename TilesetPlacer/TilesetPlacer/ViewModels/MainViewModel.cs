@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using TilesetPlacer.Helpers;
 using TilesetPlacer.Models;
 using TilesetPlacer.Mvvm;
@@ -79,6 +81,13 @@ namespace TilesetPlacer.ViewModels
             set => SetValue(TilesProperty, value);
         }
 
+        public static readonly DependencyProperty IsDirtyProperty = DependencyProperty.Register("IsDirty", typeof(bool), typeof(MainViewModel), new PropertyMetadata(default(bool), OnIsDirtyChanged));
+        public bool IsDirty
+        {
+            get => (bool) GetValue(IsDirtyProperty);
+            set => SetValue(IsDirtyProperty, value);
+        }
+
         #endregion
 
         #region Command Properties
@@ -134,16 +143,69 @@ namespace TilesetPlacer.ViewModels
             SelectedTiles = new ObservableCollection<Vector2>();
             TileWidth = 16;
             TileHeight = 16;
+            IsDirty = true;
         }
 
         private void OpenProject()
         {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "TilesetPlacer Project Files (*.tpproj)|*.tpproj|All files (*.*)|*.*"
+            };
 
+            if (!dialog.ShowDialog((MainWindow)Owner).GetValueOrDefault()) return;
+
+            var path = dialog.FileName;
+
+            Project = JsonConvert.DeserializeObject<Project>(File.ReadAllText(path));
+            SelectedTileset = null;
+            SelectedTiles.Clear();
+            Tiles.Clear();
+            Tilesets.Clear();
+
+            foreach (var tileset in Project.Tilesets)
+            {
+                tileset.SelectedTexture = ContentHelper.LoadTextureFromFile(SelectedGraphicsDevice, tileset.Path);
+                tileset.OutputTexture = ContentHelper.LoadTextureFromFile(OutputGraphicsDevice, tileset.Path);
+            }
+
+            foreach (var tile in Project.Tiles)
+            {
+                tile.Texture = Project.Tilesets.Single(x => x.Id == tile.TilesetId).OutputTexture;
+            }
+
+            Tilesets = new ObservableCollection<Tileset>(Project.Tilesets);
+            Tiles = new ObservableCollection<Tile>(Project.Tiles);
+
+            if (Tilesets.Count > 0)
+            {
+                SelectedTileset = Tilesets.First();
+            }
         }
 
         private void SaveProject()
         {
+            if (string.IsNullOrEmpty(Project.Path))
+            {
+                var dialog = new SaveFileDialog
+                {
+                    FileName = $"TilesetPlacerProject1.tpproj",
+                    Filter = "TilesetPlacer Project Files (*.tpproj)|*.tpproj|All files (*.*)|*.*"
+                };
 
+                if (!dialog.ShowDialog((MainWindow) Owner).GetValueOrDefault()) return;
+
+                Project.Path = dialog.FileName;
+            }
+
+            Project.Tilesets = Tilesets.ToList();
+            Project.Tiles = Tiles.ToList();
+
+            var output = JsonConvert.SerializeObject(Project, Formatting.Indented);
+
+            File.WriteAllText(Project.Path, output);
+
+            IsDirty = false;
         }
 
         private void Export()
@@ -170,21 +232,22 @@ namespace TilesetPlacer.ViewModels
             };
             Tilesets.Add(tileset);
             SelectedTileset = tileset;
+            IsDirty = true;
         }
 
         private void RemoveTileset()
         {
-
+            IsDirty = true;
         }
 
         private void AddProperty()
         {
-
+            IsDirty = true;
         }
 
         private void RemoveProperty()
         {
-
+            IsDirty = true;
         }
 
         private void SetPickPlaceMode()
@@ -199,7 +262,7 @@ namespace TilesetPlacer.ViewModels
 
         private void Configure()
         {
-
+            IsDirty = true;
         }
 
         #endregion
@@ -212,6 +275,7 @@ namespace TilesetPlacer.ViewModels
             var tileWidth = (int) e.NewValue;
             viewModel.Project.TileWidth = tileWidth;
             viewModel.SelectedTiles.Clear();
+            viewModel.IsDirty = true;
         }
 
         private static void OnTileHeightChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -220,6 +284,14 @@ namespace TilesetPlacer.ViewModels
             var tileHeight = (int)e.NewValue;
             viewModel.Project.TileHeight = tileHeight;
             viewModel.SelectedTiles.Clear();
+            viewModel.IsDirty = true;
+        }
+
+        private static void OnIsDirtyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var viewModel = (MainViewModel)d;
+            var value = (bool)e.NewValue;
+            viewModel.Project.IsDirty = value;
         }
 
         #endregion

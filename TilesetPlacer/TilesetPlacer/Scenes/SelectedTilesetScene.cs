@@ -80,6 +80,13 @@ namespace TilesetPlacer.Scenes
             set => SetValue(SelectedTilesProperty, value);
         }
 
+        public static readonly DependencyProperty IsDirtyProperty = DependencyProperty.Register("IsDirty", typeof(bool), typeof(SelectedTilesetScene), new PropertyMetadata(default(bool)));
+        public bool IsDirty
+        {
+            get => (bool) GetValue(IsDirtyProperty);
+            set => SetValue(IsDirtyProperty, value);
+        }
+
         #endregion
 
         protected override void Initialize()
@@ -118,6 +125,7 @@ namespace TilesetPlacer.Scenes
                 SelectedTiles.Clear();
                 _startPoint = new Vector2(_mx, _my);
                 SelectedTiles.Add(_startPoint);
+                IsDirty = true;
             }
             else if (_currentMouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Pressed)
             {
@@ -133,6 +141,7 @@ namespace TilesetPlacer.Scenes
                         SelectedTiles.Add(new Vector2(sx + x, sy + y));
                     }
                 }
+                IsDirty = true;
             }
         }
 

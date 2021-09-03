@@ -125,6 +125,7 @@
                 <scenes:SelectedTilesetScene Grid.Row="1" Background="#1E1E1E" 
                                              TileWidth="{Binding TileWidth}" TileHeight="{Binding TileHeight}" 
                                              SelectedTileset="{Binding SelectedTileset}"
+                                             IsDirty="{Binding IsDirty, Mode=TwoWay}"
                                              SelectedTiles="{Binding SelectedTiles, Mode=TwoWay}"
                                              Device="{Binding SelectedGraphicsDevice, Mode=TwoWay}"/>
                 <ToolBarTray Grid.Row="2">
@@ -151,6 +152,7 @@
                                            OriginalTileWidth="{Binding TileWidth}" OriginalTileHeight="{Binding TileHeight}"
                                            SelectedTileset="{Binding SelectedTileset}"
                                            Tiles="{Binding Tiles, Mode=TwoWay}"
+                                           IsDirty="{Binding IsDirty, Mode=TwoWay}"
                                            SelectedTiles="{Binding SelectedTiles, Mode=TwoWay}"
                                            Device="{Binding OutputGraphicsDevice, Mode=TwoWay}"/>
                 <ToolBarTray Grid.Row="2">

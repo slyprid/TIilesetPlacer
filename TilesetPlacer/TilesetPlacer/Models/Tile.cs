@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 
 namespace TilesetPlacer.Models
 {
@@ -10,12 +11,14 @@ namespace TilesetPlacer.Models
         public int Y { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public Texture2D Texture { get; set; }
         public int SourceX { get; set; }
         public int SourceY { get; set; }
         public int SourceWidth { get; set; }
         public int SourceHeight { get; set; }
         public Guid TilesetId { get; set; }
+
+        [JsonIgnore]
+        public Texture2D Texture { get; set; }
 
         public void Draw(SpriteBatch spriteBatch)
         {
