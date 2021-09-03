@@ -2,6 +2,7 @@
 {
     public class Project
     {
+        public bool IsDirty { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
         public int TileWidth { get; set; }
@@ -11,10 +12,9 @@
         
         public Project()
         {
-            TileWidth = 16;
-            TileHeight = 16;
             OutputTileWidth = 32;
             OutputTileHeight = 32;
+            IsDirty = true;
         }
     }
 }

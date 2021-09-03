@@ -1,11 +1,17 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Tweening;
 using MonoGame.Framework.WpfInterop;
 using MonoGame.Framework.WpfInterop.Input;
 using TilesetPlacer.Extensions;
+using TilesetPlacer.Graphics;
 using TilesetPlacer.Models;
 using Color = Microsoft.Xna.Framework.Color;
 
@@ -14,11 +20,20 @@ namespace TilesetPlacer.Scenes
     public class OutputTilesetScene 
         : WpfGame
     {
+        private Vector2 _mousePosition;
+        private float _mx;
+        private float _my;
+        private ColorEx _cursorColor;
+        private Tweener _tweener;
         private IGraphicsDeviceService _graphicsDeviceManager;
         private WpfKeyboard _keyboard;
         private WpfMouse _mouse;
+        private MouseState _currentMouseState;
+        private MouseState _previousMouseState;
         private SpriteBatch _spriteBatch;
-
+        private float _scaleX;
+        private float _scaleY;
+        
         #region Dependency Properties 
 
         public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register("Background", typeof(SolidColorBrush), typeof(OutputTilesetScene), new PropertyMetadata(default(SolidColorBrush)));
@@ -56,42 +71,128 @@ namespace TilesetPlacer.Scenes
             set => SetValue(SelectedTilesetProperty, value);
         }
 
+        public static readonly DependencyProperty SelectedTilesProperty = DependencyProperty.Register("SelectedTiles", typeof(ObservableCollection<Vector2>), typeof(OutputTilesetScene), new PropertyMetadata(default(ObservableCollection<Vector2>)));
+        public ObservableCollection<Vector2> SelectedTiles
+        {
+            get => (ObservableCollection<Vector2>)GetValue(SelectedTilesProperty);
+            set => SetValue(SelectedTilesProperty, value);
+        }
+
+        public static readonly DependencyProperty OriginalTileWidthProperty = DependencyProperty.Register("OriginalTileWidth", typeof(int), typeof(OutputTilesetScene), new PropertyMetadata(default(int)));
+        public int OriginalTileWidth
+        {
+            get => (int) GetValue(OriginalTileWidthProperty);
+            set => SetValue(OriginalTileWidthProperty, value);
+        }
+
+        public static readonly DependencyProperty OriginalTileHeightProperty = DependencyProperty.Register("OriginalTileHeight", typeof(int), typeof(OutputTilesetScene), new PropertyMetadata(default(int)));
+        public int OriginalTileHeight
+        {
+            get => (int) GetValue(OriginalTileHeightProperty);
+            set => SetValue(OriginalTileHeightProperty, value);
+        }
+
+        public static readonly DependencyProperty TilesProperty = DependencyProperty.Register("Tiles", typeof(ObservableCollection<Tile>), typeof(OutputTilesetScene), new PropertyMetadata(default(ObservableCollection<Tile>)));
+        public ObservableCollection<Tile> Tiles
+        {
+            get => (ObservableCollection<Tile>) GetValue(TilesProperty);
+            set => SetValue(TilesProperty, value);
+        }
+
         #endregion
 
         protected override void Initialize()
         {
-            // must be initialized. required by Content loading and rendering (will add itself to the Services)
-            // note that MonoGame requires this to be initialized in the constructor, while WpfInterop requires it to
-            // be called inside Initialize (before base.Initialize())
             _graphicsDeviceManager = new WpfGraphicsDeviceService(this);
 
-            // wpf and keyboard need reference to the host control in order to receive input
-            // this means every WpfGame control will have it's own keyboard & mouse manager which will only react if the mouse is in the control
             _keyboard = new WpfKeyboard(this);
             _mouse = new WpfMouse(this);
 
-            // must be called after the WpfGraphicsDeviceService instance was created
             base.Initialize();
 
-            // content loading now possible
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Device = GraphicsDevice;
+
+            SelectedTiles = new ObservableCollection<Vector2>();
+            Tiles = new ObservableCollection<Tile>();
+
+            _cursorColor = new ColorEx(Color.Yellow);
+            _tweener = new Tweener();
+            _tweener.TweenTo(_cursorColor, x => x.Value3, new Vector3(1f, 0, 0f), 0.25f, 0.025f).RepeatForever(0.2f).AutoReverse().Easing(EasingFunctions.Linear);
         }
 
-        protected override void Update(GameTime time)
+        protected override void Update(GameTime gameTime)
         {
-            // every update we can now query the keyboard & mouse for our WpfGame
-            var mouseState = _mouse.GetState();
+            _previousMouseState = _currentMouseState;
+            _currentMouseState = _mouse.GetState();
             var keyboardState = _keyboard.GetState();
+
+            _mousePosition = new Vector2(_currentMouseState.X, _currentMouseState.Y);
+            _mx = (int)(_mousePosition.X / TileWidth) * TileWidth;
+            _my = (int)(_mousePosition.Y / TileHeight) * TileHeight;
+
+            _scaleX = (float) TileWidth / (float) OriginalTileWidth;
+            _scaleY = (float)TileHeight / (float)OriginalTileHeight;
+
+            _tweener.Update(gameTime.GetElapsedSeconds());
+
+            if (_currentMouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Released && SelectedTileset != null)
+            {
+                var minX = SelectedTiles.Min(tile => tile.X);
+                var minY = SelectedTiles.Min(tile => tile.Y);
+                var maxX = SelectedTiles.Max(tile => tile.X);
+                var maxY = SelectedTiles.Max(tile => tile.Y);
+                var dx = ((maxX - minX) / OriginalTileWidth) + 1;
+                var dy = ((maxY - minY) / OriginalTileHeight) + 1 ;
+                var idx = 0;
+                for (var y = 0; y < dy; y++)
+                {
+                    for (var x = 0; x < dx; x++)
+                    {
+                        var selectedTile = SelectedTiles[idx];
+                        var tile = new Tile
+                        {
+                            X = (int)(_mx + (x * TileWidth)),
+                            Y = (int)(_my + (y * TileHeight)),
+                            Width = TileWidth,
+                            Height = TileHeight,
+                            SourceX = (int)selectedTile.X,
+                            SourceY = (int)selectedTile.Y,
+                            SourceWidth = OriginalTileWidth,
+                            SourceHeight = OriginalTileHeight,
+                            Texture = SelectedTileset.OutputTexture,
+                            TilesetId = SelectedTileset.Id
+                        };
+                        Tiles.Add(tile);
+                        idx++;
+                    }
+                }
+            }
+
+            if (_currentMouseState.RightButton == ButtonState.Pressed)
+            {
+                foreach(var tile in Tiles.ToList())
+                {
+                    if(tile.X == (int)_mx && tile.Y == (int)_my)
+                    {
+                        Tiles.Remove(tile);
+                    }
+                }
+            }
         }
 
-        protected override void Draw(GameTime time)
+        protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(Background.Color.R, Background.Color.G, Background.Color.B));
 
             if (TileWidth <= 0 || TileHeight <= 0) return;
 
-            _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp);
+
+            foreach (var tile in Tiles)
+            {
+                tile.Draw(_spriteBatch);
+            }
 
             for (var y = 0; y < ActualHeight; y += TileHeight)
             {
@@ -102,6 +203,8 @@ namespace TilesetPlacer.Scenes
             {
                 _spriteBatch.DrawDashedLine(x, 0f, x, (float)ActualHeight, Color.White.WithOpacity(0.5f));
             }
+
+            _spriteBatch.DrawRectangle(new RectangleF(_mx, _my, TileWidth, TileHeight), _cursorColor.Color);
 
             _spriteBatch.End();
         }

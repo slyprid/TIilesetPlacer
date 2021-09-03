@@ -123,15 +123,16 @@
                     <TextBlock Text="Selected Tileset" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
                 </Border>
                 <scenes:SelectedTilesetScene Grid.Row="1" Background="#1E1E1E" 
-                                             TileWidth="{Binding Project.TileWidth}" TileHeight="{Binding Project.TileHeight}" 
+                                             TileWidth="{Binding TileWidth}" TileHeight="{Binding TileHeight}" 
                                              SelectedTileset="{Binding SelectedTileset}"
+                                             SelectedTiles="{Binding SelectedTiles, Mode=TwoWay}"
                                              Device="{Binding SelectedGraphicsDevice, Mode=TwoWay}"/>
                 <ToolBarTray Grid.Row="2">
                     <ToolBar Height="32">
                         <TextBlock Text="Tile Width:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0,0,8,0"/>
-                        <TextBox Text="{Binding Project.TileWidth, Mode=TwoWay}" Width="32" Height="18"/>
+                        <TextBox Text="{Binding TileWidth, Mode=TwoWay}" Width="32" Height="18"/>
                         <TextBlock Text="Height:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,0"/>
-                        <TextBox Text="{Binding Project.TileHeight, Mode=TwoWay}" Width="32" Height="18"/>
+                        <TextBox Text="{Binding TileHeight, Mode=TwoWay}" Width="32" Height="18"/>
                     </ToolBar>
                 </ToolBarTray>
             </Grid>
@@ -147,7 +148,10 @@
                 </Border>
                 <scenes:OutputTilesetScene Grid.Row="1" Background="#1E1E1E" 
                                            TileWidth="{Binding Project.OutputTileWidth}" TileHeight="{Binding Project.OutputTileHeight}" 
+                                           OriginalTileWidth="{Binding TileWidth}" OriginalTileHeight="{Binding TileHeight}"
                                            SelectedTileset="{Binding SelectedTileset}"
+                                           Tiles="{Binding Tiles, Mode=TwoWay}"
+                                           SelectedTiles="{Binding SelectedTiles, Mode=TwoWay}"
                                            Device="{Binding OutputGraphicsDevice, Mode=TwoWay}"/>
                 <ToolBarTray Grid.Row="2">
                     <ToolBar Height="32">

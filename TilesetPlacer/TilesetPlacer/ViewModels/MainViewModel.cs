@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using Microsoft.Win32;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TilesetPlacer.Helpers;
 using TilesetPlacer.Models;
@@ -29,7 +30,7 @@ namespace TilesetPlacer.ViewModels
             set => SetValue(TilesetsProperty, value);
         }
 
-        public static readonly DependencyProperty SelectedTilesetProperty = DependencyProperty.Register("SelectedTileset", typeof(Tileset), typeof(MainViewModel), new PropertyMetadata(default(Tileset), OnSelectedTilesetChanged));
+        public static readonly DependencyProperty SelectedTilesetProperty = DependencyProperty.Register("SelectedTileset", typeof(Tileset), typeof(MainViewModel), new PropertyMetadata(default(Tileset)));
         public Tileset SelectedTileset
         {
             get => (Tileset) GetValue(SelectedTilesetProperty);
@@ -48,6 +49,34 @@ namespace TilesetPlacer.ViewModels
         {
             get => (GraphicsDevice)GetValue(SelectedGraphicsDeviceProperty);
             set => SetValue(SelectedGraphicsDeviceProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedTilesProperty = DependencyProperty.Register("SelectedTiles", typeof(ObservableCollection<Vector2>), typeof(MainViewModel), new PropertyMetadata(default(ObservableCollection<Vector2>)));
+        public ObservableCollection<Vector2> SelectedTiles
+        {
+            get => (ObservableCollection<Vector2>) GetValue(SelectedTilesProperty);
+            set => SetValue(SelectedTilesProperty, value);
+        }
+
+        public static readonly DependencyProperty TileWidthProperty = DependencyProperty.Register("TileWidth", typeof(int), typeof(MainViewModel), new PropertyMetadata(default(int), OnTileWidthChange));
+        public int TileWidth
+        {
+            get => (int) GetValue(TileWidthProperty);
+            set => SetValue(TileWidthProperty, value);
+        }
+
+        public static readonly DependencyProperty TileHeightProperty = DependencyProperty.Register("TileHeight", typeof(int), typeof(MainViewModel), new PropertyMetadata(default(int), OnTileHeightChange));
+        public int TileHeight
+        {
+            get => (int) GetValue(TileHeightProperty);
+            set => SetValue(TileHeightProperty, value);
+        }
+
+        public static readonly DependencyProperty TilesProperty = DependencyProperty.Register("Tiles", typeof(ObservableCollection<Tile>), typeof(MainViewModel), new PropertyMetadata(default(ObservableCollection<Tile>)));
+        public ObservableCollection<Tile> Tiles
+        {
+            get => (ObservableCollection<Tile>) GetValue(TilesProperty);
+            set => SetValue(TilesProperty, value);
         }
 
         #endregion
@@ -70,9 +99,7 @@ namespace TilesetPlacer.ViewModels
 
         public MainViewModel()
         {
-            Project = new Project();
-            Tilesets = new ObservableCollection<Tileset>();
-
+            NewProject();
             InitializeCommands();
         }
 
@@ -95,7 +122,18 @@ namespace TilesetPlacer.ViewModels
 
         private void NewProject()
         {
+            if (Project != null && Project.IsDirty)
+            {
+                var ret = MessageBox.Show("Are you sure you want to start a new project?", "TilesetPlacer", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (ret == MessageBoxResult.No) return;
+            }
+            Project = new Project();
+            Tilesets = new ObservableCollection<Tileset>();
+            Tiles = new ObservableCollection<Tile>();
 
+            SelectedTiles = new ObservableCollection<Vector2>();
+            TileWidth = 16;
+            TileHeight = 16;
         }
 
         private void OpenProject()
@@ -168,14 +206,21 @@ namespace TilesetPlacer.ViewModels
 
         #region Events
 
-        private static void OnSelectedTilesetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnTileWidthChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var mainViewModel = (MainViewModel) d;
-            var tileset = (Tileset) e.NewValue;
-
-           
+            var viewModel = (MainViewModel) d;
+            var tileWidth = (int) e.NewValue;
+            viewModel.Project.TileWidth = tileWidth;
+            viewModel.SelectedTiles.Clear();
         }
 
+        private static void OnTileHeightChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var viewModel = (MainViewModel)d;
+            var tileHeight = (int)e.NewValue;
+            viewModel.Project.TileHeight = tileHeight;
+            viewModel.SelectedTiles.Clear();
+        }
 
         #endregion
     }

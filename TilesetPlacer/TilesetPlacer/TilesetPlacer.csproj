@@ -40,6 +40,9 @@
     <Reference Include="MonoGame.Extended, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Extended.3.8.0\lib\netstandard2.0\MonoGame.Extended.dll</HintPath>
     </Reference>
+    <Reference Include="MonoGame.Extended.Tweening, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoGame.Extended.Tweening.3.8.0\lib\netstandard2.0\MonoGame.Extended.Tweening.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework, Version=3.8.0.1641, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.WindowsDX.3.8.0.1641\lib\net452\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -118,8 +121,10 @@
     </Compile>
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\SpriteBatchExtensions.cs" />
+    <Compile Include="Graphics\ColorEx.cs" />
     <Compile Include="Helpers\ContentHelper.cs" />
     <Compile Include="Models\Project.cs" />
+    <Compile Include="Models\Tile.cs" />
     <Compile Include="Models\Tileset.cs" />
     <Compile Include="Scenes\OutputTilesetScene.cs" />
     <Compile Include="Scenes\SelectedTilesetScene.cs" />
