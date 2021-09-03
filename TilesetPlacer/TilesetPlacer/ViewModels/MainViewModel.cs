@@ -88,6 +88,28 @@ namespace TilesetPlacer.ViewModels
             set => SetValue(IsDirtyProperty, value);
         }
 
+        public static readonly DependencyProperty SelectedMousePositionProperty = DependencyProperty.Register("SelectedMousePosition", typeof(string), typeof(MainViewModel), new PropertyMetadata(default(string)));
+        public string SelectedMousePosition
+        {
+            get => (string) GetValue(SelectedMousePositionProperty);
+            set => SetValue(SelectedMousePositionProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedIndexProperty = DependencyProperty.Register("SelectedIndex", typeof(string), typeof(MainViewModel), new PropertyMetadata(default(string)));
+        public string SelectedIndex
+        {
+            get => (string) GetValue(SelectedIndexProperty);
+            set => SetValue(SelectedIndexProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedCurrentIndexProperty = DependencyProperty.Register("SelectedCurrentIndex", typeof(string), typeof(MainViewModel), new PropertyMetadata(default(string)));
+        public string SelectedCurrentIndex
+        {
+            get => (string) GetValue(SelectedCurrentIndexProperty);
+            set => SetValue(SelectedCurrentIndexProperty, value);
+        }
+        
+
         #endregion
 
         #region Command Properties

@@ -127,6 +127,9 @@
                                              SelectedTileset="{Binding SelectedTileset}"
                                              IsDirty="{Binding IsDirty, Mode=TwoWay}"
                                              SelectedTiles="{Binding SelectedTiles, Mode=TwoWay}"
+                                             MousePosition="{Binding SelectedMousePosition, Mode=TwoWay}"
+                                             SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                                             SelectedCurrentIndex="{Binding SelectedCurrentIndex, Mode=TwoWay}"
                                              Device="{Binding SelectedGraphicsDevice, Mode=TwoWay}"/>
                 <ToolBarTray Grid.Row="2">
                     <ToolBar Height="32">
@@ -134,6 +137,14 @@
                         <TextBox Text="{Binding TileWidth, Mode=TwoWay}" Width="32" Height="18"/>
                         <TextBlock Text="Height:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,0"/>
                         <TextBox Text="{Binding TileHeight, Mode=TwoWay}" Width="32" Height="18"/>
+                    </ToolBar>
+                    <ToolBar Height="32">
+                        <TextBlock Text="Mouse Position:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0,0,8,0"/>
+                        <TextBlock Text="{Binding SelectedMousePosition, Mode=TwoWay}" Width="48" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Index:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="{Binding SelectedCurrentIndex, Mode=TwoWay}" Width="48" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Selected Index:" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="{Binding SelectedIndex, Mode=TwoWay}" Width="64" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </ToolBar>
                 </ToolBarTray>
             </Grid>

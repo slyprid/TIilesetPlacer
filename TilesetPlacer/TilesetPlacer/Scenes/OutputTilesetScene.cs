@@ -213,9 +213,21 @@ namespace TilesetPlacer.Scenes
                 _spriteBatch.DrawDashedLine(x, 0f, x, (float)ActualHeight, Color.White.WithOpacity(0.5f));
             }
 
+            DrawDashedLineAt(256);
+            DrawDashedLineAt(512);
+            DrawDashedLineAt(1024);
+            DrawDashedLineAt(2048);
+            DrawDashedLineAt(4096);
+
             _spriteBatch.DrawRectangle(new RectangleF(_mx, _my, TileWidth, TileHeight), _cursorColor.Color);
 
             _spriteBatch.End();
+        }
+
+        private void DrawDashedLineAt(int loc)
+        {
+            _spriteBatch.DrawDashedLine(0f, loc, (float)ActualWidth, loc, Color.Red.WithOpacity(0.5f));
+            _spriteBatch.DrawDashedLine(loc, 0f, loc, (float)ActualHeight, Color.Red.WithOpacity(0.5f));
         }
     }
 }

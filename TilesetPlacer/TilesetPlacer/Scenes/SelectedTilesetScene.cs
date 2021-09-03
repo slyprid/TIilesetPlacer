@@ -87,6 +87,27 @@ namespace TilesetPlacer.Scenes
             set => SetValue(IsDirtyProperty, value);
         }
 
+        public static readonly DependencyProperty MousePositionProperty = DependencyProperty.Register("MousePosition", typeof(string), typeof(SelectedTilesetScene), new PropertyMetadata(default(string)));
+        public string MousePosition
+        {
+            get => (string) GetValue(MousePositionProperty);
+            set => SetValue(MousePositionProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedIndexProperty = DependencyProperty.Register("SelectedIndex", typeof(string), typeof(SelectedTilesetScene), new PropertyMetadata(default(string)));
+        public string SelectedIndex
+        {
+            get => (string) GetValue(SelectedIndexProperty);
+            set => SetValue(SelectedIndexProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedCurrentIndexProperty = DependencyProperty.Register("SelectedCurrentIndex", typeof(string), typeof(SelectedTilesetScene), new PropertyMetadata(default(string)));
+        public string SelectedCurrentIndex
+        {
+            get => (string) GetValue(SelectedCurrentIndexProperty);
+            set => SetValue(SelectedCurrentIndexProperty, value);
+        }
+
         #endregion
 
         protected override void Initialize()
@@ -118,7 +139,21 @@ namespace TilesetPlacer.Scenes
             _mx = (int)(_mousePosition.X / TileWidth) * TileWidth;
             _my = (int)(_mousePosition.Y / TileHeight) * TileHeight;
 
+            MousePosition = $"[{_mx / TileWidth},{_my / TileHeight}]";
+
             _tweener.Update(gameTime.GetElapsedSeconds());
+
+            if (SelectedTileset == null) return;
+
+            var sx = _startPoint.X;
+            var sy = _startPoint.Y;
+            var dx = _mx - sx;
+            var dy = _my - sy;
+
+            var startIndex = (sy / TileHeight) * (SelectedTileset.SelectedTexture.Width / TileHeight) + (sx / TileWidth);
+            var endIndex = (_my / TileHeight) * (SelectedTileset.SelectedTexture.Width / TileWidth) + (_mx / TileWidth);
+            var index = (_my / TileHeight) * (SelectedTileset.SelectedTexture.Width / TileWidth) + (_mx / TileWidth);
+            SelectedCurrentIndex = $"{index}";
 
             if (_currentMouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Released)
             {
@@ -126,15 +161,17 @@ namespace TilesetPlacer.Scenes
                 _startPoint = new Vector2(_mx, _my);
                 SelectedTiles.Add(_startPoint);
                 IsDirty = true;
+                SelectedIndex = $"{index}";
             }
             else if (_currentMouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Pressed)
             {
+                if (startIndex == endIndex) return;
+
                 SelectedTiles.Clear();
-                var sx = _startPoint.X;
-                var sy = _startPoint.Y;
-                var dx = _mx - sx;
-                var dy = _my - sy;
-                for(var y = 0; y <= dy; y += TileHeight)
+                
+                SelectedIndex = $"[{startIndex}->{endIndex}]";
+
+                for (var y = 0; y <= dy; y += TileHeight)
                 {
                     for (var x = 0; x <= dx; x += TileWidth)
                     {
@@ -158,14 +195,32 @@ namespace TilesetPlacer.Scenes
                 _spriteBatch.Draw(SelectedTileset.SelectedTexture, Vector2.Zero, Color.White);
             }
 
-            for (var y = 0; y < ActualHeight; y += TileHeight)
+            if (SelectedTileset == null)
             {
-                _spriteBatch.DrawDashedLine(0f, y, (float)ActualWidth, y, Color.White.WithOpacity(0.5f));
-            }
+                for (var y = 0; y < ActualHeight; y += TileHeight)
+                {
+                    _spriteBatch.DrawDashedLine(0f, y, (float) ActualWidth, y, Color.White.WithOpacity(0.5f));
+                }
 
-            for (var x = 0; x < ActualWidth; x += TileWidth)
+                for (var x = 0; x < ActualWidth; x += TileWidth)
+                {
+                    _spriteBatch.DrawDashedLine(x, 0f, x, (float) ActualHeight, Color.White.WithOpacity(0.5f));
+                }
+            }
+            else
             {
-                _spriteBatch.DrawDashedLine(x, 0f, x, (float)ActualHeight, Color.White.WithOpacity(0.5f));
+                for (var y = 0; y < SelectedTileset.SelectedTexture.Height; y += TileHeight)
+                {
+                    _spriteBatch.DrawDashedLine(0f, y, (float)SelectedTileset.SelectedTexture.Width, y, Color.White.WithOpacity(0.5f));
+                }
+
+                for (var x = 0; x < SelectedTileset.SelectedTexture.Width; x += TileWidth)
+                {
+                    _spriteBatch.DrawDashedLine(x, 0f, x, (float)SelectedTileset.SelectedTexture.Height, Color.White.WithOpacity(0.5f));
+                }
+
+                _spriteBatch.DrawLine(0f, SelectedTileset.SelectedTexture.Height, SelectedTileset.SelectedTexture.Width, SelectedTileset.SelectedTexture.Height, Color.White);
+                _spriteBatch.DrawLine(SelectedTileset.SelectedTexture.Width, 0f, SelectedTileset.SelectedTexture.Width, SelectedTileset.SelectedTexture.Height, Color.White);
             }
 
             foreach (var (x, y) in SelectedTiles)
