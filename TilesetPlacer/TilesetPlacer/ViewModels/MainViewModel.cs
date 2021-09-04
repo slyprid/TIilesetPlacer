@@ -1,4 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -10,6 +14,7 @@ using TilesetPlacer.Helpers;
 using TilesetPlacer.Models;
 using TilesetPlacer.Mvvm;
 using TilesetPlacer.Views;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace TilesetPlacer.ViewModels
 {
@@ -232,7 +237,67 @@ namespace TilesetPlacer.ViewModels
 
         private void Export()
         {
+            if (Tiles.Count <= 0)
+            {
+                MessageBox.Show("Nothing to export", "TilesetPlacer");
+                return;
+            }
 
+            var dialog = new SaveFileDialog
+            {
+                FileName = $"TilesetPlacerOutput1.png",
+                Filter = "Image Files (*.bmp, *.jpg, *.png, *.tif)|*.bmp;*.jpg;*.png;*.tif|All files (*.*)|*.*"
+            };
+
+            if (!dialog.ShowDialog((MainWindow)Owner).GetValueOrDefault()) return;
+
+            var outputFilename = dialog.FileName;
+            var extension = Path.GetExtension(outputFilename);
+
+            if (extension.ToLower() != ".bmp" && extension.ToLower() != ".jpg" && extension.ToLower() != ".png" && extension.ToLower() != ".tif")
+            {
+                MessageBox.Show("Unable to export to that image format", "TilesetPlacer");
+                return;
+            }
+
+            try
+            {
+                var maxWidth = GetMaxOutputWidth();
+                var maxHeight = GetMaxOutputHeight();
+
+                if (maxWidth > maxHeight) maxHeight = maxWidth;
+                if (maxHeight > maxWidth) maxWidth = maxHeight;
+
+                var outputBitmap = new Bitmap(maxWidth, maxHeight);
+
+                var tilesetBitmaps = new Dictionary<Guid, Image>();
+                foreach (var tileset in Tilesets)
+                {
+                    var bitmap = Image.FromFile(tileset.Path);
+                    tilesetBitmaps.Add(tileset.Id, bitmap);
+                }
+                foreach (var tile in Tiles)
+                {
+                    var bitmap = tilesetBitmaps[tile.TilesetId];
+                    using (var g = System.Drawing.Graphics.FromImage(outputBitmap))
+                    {
+                        var srcRect = new Rectangle(tile.SourceX, tile.SourceY, tile.SourceWidth, tile.SourceHeight);
+                        var destRect = new Rectangle(tile.X, tile.Y, tile.Width, tile.Height);
+                        g.DrawImage(bitmap, destRect, srcRect, GraphicsUnit.Pixel);
+                    }
+                }
+
+                if(extension.ToLower() == ".bmp") outputBitmap.Save(outputFilename, ImageFormat.Bmp);
+                if (extension.ToLower() == ".jpg") outputBitmap.Save(outputFilename, ImageFormat.Jpeg);
+                if (extension.ToLower() == ".png") outputBitmap.Save(outputFilename, ImageFormat.Png);
+                if (extension.ToLower() == ".tif") outputBitmap.Save(outputFilename, ImageFormat.Tiff);
+
+                MessageBox.Show("Export complete", "TilesetPlacer");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Export failed\r\n{ex.Message}", "TilesetPlacer", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void AddTileset()
@@ -332,6 +397,34 @@ namespace TilesetPlacer.ViewModels
             var viewModel = (MainViewModel)d;
             var value = (bool)e.NewValue;
             viewModel.Project.IsDirty = value;
+        }
+
+        #endregion
+
+        #region Functions / Methods
+
+        private int GetMaxOutputWidth()
+        {
+            var maxWidth = Tiles.Max(tile => tile.X) + Project.OutputTileWidth;
+
+            if (maxWidth <= 256) maxWidth = 256;
+            else if (maxWidth > 256 && maxWidth <= 512) maxWidth = 512;
+            else if (maxWidth > 512 && maxWidth <= 1024) maxWidth = 1024;
+            else if (maxWidth > 1024 && maxWidth <= 2048) maxWidth = 2048;
+            else if (maxWidth > 2048 && maxWidth <= 4096) maxWidth = 4096;
+            return maxWidth;
+        }
+
+        private int GetMaxOutputHeight()
+        {
+            var maxHeight = Tiles.Max(tile => tile.Y) + Project.OutputTileHeight;
+
+            if (maxHeight <= 256) maxHeight = 256;
+            else if (maxHeight > 256 && maxHeight <= 512) maxHeight = 512;
+            else if (maxHeight > 512 && maxHeight <= 1024) maxHeight = 1024;
+            else if (maxHeight > 1024 && maxHeight <= 2048) maxHeight = 2048;
+            else if (maxHeight > 2048 && maxHeight <= 4096) maxHeight = 4096;
+            return maxHeight;
         }
 
         #endregion

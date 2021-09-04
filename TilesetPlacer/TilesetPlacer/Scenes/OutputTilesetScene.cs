@@ -219,6 +219,8 @@ namespace TilesetPlacer.Scenes
             DrawDashedLineAt(2048);
             DrawDashedLineAt(4096);
 
+            DrawMaxBorder();
+
             _spriteBatch.DrawRectangle(new RectangleF(_mx, _my, TileWidth, TileHeight), _cursorColor.Color);
 
             _spriteBatch.End();
@@ -228,6 +230,46 @@ namespace TilesetPlacer.Scenes
         {
             _spriteBatch.DrawDashedLine(0f, loc, (float)ActualWidth, loc, Color.Red.WithOpacity(0.5f));
             _spriteBatch.DrawDashedLine(loc, 0f, loc, (float)ActualHeight, Color.Red.WithOpacity(0.5f));
+        }
+
+        private void DrawMaxBorder()
+        {
+            var maxWidth = GetMaxOutputWidth();
+            var maxHeight = GetMaxOutputHeight();
+
+            if (maxWidth == 0 || maxHeight == 0) return;
+
+            if (maxWidth > maxHeight) maxHeight = maxWidth;
+            if (maxHeight > maxWidth) maxWidth = maxHeight;
+
+            _spriteBatch.DrawDashedLine(0f, maxHeight, maxWidth, maxHeight, Color.White);
+            _spriteBatch.DrawDashedLine(maxWidth, 0f, maxWidth, maxHeight, Color.White);
+        }
+
+        private int GetMaxOutputWidth()
+        {
+            if (Tiles.Count <= 0) return 0;
+            var maxWidth = Tiles.Max(tile => tile.X) + TileWidth;
+
+            if (maxWidth <= 256) maxWidth = 256;
+            else if (maxWidth > 256 && maxWidth <= 512) maxWidth = 512;
+            else if (maxWidth > 512 && maxWidth <= 1024) maxWidth = 1024;
+            else if (maxWidth > 1024 && maxWidth <= 2048) maxWidth = 2048;
+            else if (maxWidth > 2048 && maxWidth <= 4096) maxWidth = 4096;
+            return maxWidth;
+        }
+
+        private int GetMaxOutputHeight()
+        {
+            if (Tiles.Count <= 0) return 0;
+            var maxHeight = Tiles.Max(tile => tile.Y) + TileHeight;
+
+            if (maxHeight <= 256) maxHeight = 256;
+            else if (maxHeight > 256 && maxHeight <= 512) maxHeight = 512;
+            else if (maxHeight > 512 && maxHeight <= 1024) maxHeight = 1024;
+            else if (maxHeight > 1024 && maxHeight <= 2048) maxHeight = 2048;
+            else if (maxHeight > 2048 && maxHeight <= 4096) maxHeight = 4096;
+            return maxHeight;
         }
     }
 }
